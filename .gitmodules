@@ -7,3 +7,6 @@
 [submodule "qMRLab"]
 	path = qMRLab
 	url = https://github.com/qMRLab/qMRLab
+[submodule "mapVBVD"]
+	path = mapVBVD
+	url = https://github.com/pehses/mapVBVD
