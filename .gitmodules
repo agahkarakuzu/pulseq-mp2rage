@@ -1,0 +1,9 @@
+[submodule "bart"]
+	path = bart
+	url = https://github.com/mrirecon/bart
+[submodule "pulseq"]
+	path = pulseq
+	url = https://github.com/pulseq/pulseq
+[submodule "qMRLab"]
+	path = qMRLab
+	url = https://github.com/qMRLab/qMRLab
