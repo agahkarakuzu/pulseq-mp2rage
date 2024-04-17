@@ -12,7 +12,7 @@ Npar = twix_obj{end}.image.NPar;
 Ncha = twix_obj{end}.image.NCha;
 Npe = twix_obj{end}.image.NLin;
 Nset = twix_obj{end}.image.NSet;
-Ncol = twix_obj{end}.image.NCol; %sample 
+Ncol = twix_obj{end}.image.NCol;
 
 data = twix_obj{end}.image(:,:,:,:,:);
 
@@ -24,7 +24,16 @@ combine_ks2im(data,1,name,out_path);
 combine_ks2im(data,2,name,out_path);
 
 save_name = char(fullfile(out_path,splitbefore(name) + "_MP2RAGE.json"));
-savejson('',twix_obj{end}.hdr.Dicom,save_name);
+savehdr = twix_obj{end}.hdr.Dicom;
+savehdr.RepetitionTimePreparation = 5;
+savehdr.RepetitionTimeExcitation = 0.008;
+savehdr.InversionTime1 = 0.8;
+savehdr.InversionTime2 = 2.1;
+savehdr.FlipAngle1 = 7;
+savehdr.FlipAngle2 = 5;
+savehdr.NumberShots = [48,48];
+
+savejson('',savehdr,save_name);
 
 end
 

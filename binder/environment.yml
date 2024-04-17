@@ -1,2 +1,14 @@
+channels:
+  - conda-forge
 dependencies:
-- octave_kernel
+  - octave_kernel
+  - python=3.8
+  - pip
+  - pip:
+    - numpy
+    - pandas
+    - ipyleaflet
+    - plotly
+    - repo2data==2.9.1
+    - jupyter-book==0.15.1
+    - Jinja2==3.1.2

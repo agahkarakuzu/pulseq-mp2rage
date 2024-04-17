@@ -34,10 +34,10 @@ for i=1:length(flds)
 
         data = struct();
         % Please don't hate me for this.
-        data.INV1mag = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-real_MP2RAGE.nii.gz"))).img);
-        data.INV1phase = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-imag_MP2RAGE.nii.gz"))).img);
-        data.INV2mag = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-real_MP2RAGE.nii.gz"))).img);
-        data.INV2phase = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-imag_MP2RAGE.nii.gz"))).img);
+        data.INV1mag = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz"))).img);
+        data.INV1phase = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-phase_MP2RAGE.nii.gz"))).img);
+        data.INV2mag = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-mag_MP2RAGE.nii.gz"))).img);
+        data.INV2phase = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-phase_MP2RAGE.nii.gz"))).img);
 
         % Set preset prots 
         Model = mp2rage;
@@ -45,8 +45,20 @@ for i=1:length(flds)
 
         FitResults = FitData(data,Model,0);
 
-        FitResultsSave_nii(FitResults, char(fullfile(indir,common + num2str(1) + "_part-real_MP2RAGE.nii.gz")),char(outdir));
+        FitResultsSave_nii(FitResults, char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz")),char(outdir));
 
+        addField = struct();
+        addField.EstimationAlgorithm =  'qMRLab MP2RAGE';
+        addField.Protocol =  mp2rage_prot;
+        addField.BasedOn = [{char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz"))};
+                            {char(fullfile(indir,common + num2str(1) + "_part-phase_MP2RAGE.nii.gz"))};
+                            {char(fullfile(indir,common + num2str(2) + "_part-mag_MP2RAGE.nii.gz"))};
+                            {char(fullfile(indir,common + num2str(2) + "_part-phase_MP2RAGE.nii.gz"))}
+                            ];
+        provenance = Model.getProvenance('extra',addField);
+
+        save_name = char(fullfile(outdir, "qmrlab_provenance.json"));
+        savejson('',provenance,save_name);
     end
 end
 

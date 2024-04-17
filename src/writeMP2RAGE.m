@@ -61,10 +61,11 @@ rf2 = mr.makeBlockPulse(alpha2*pi/180,sys,'Duration',rfLen);
 
 % WARNING!!!! =========================== 
 % You may need to pass python exec dir where SigPy is available, for example 
-% rf180 = mr.makeAdiabaticPulse('hypsec',sys,'Duration',10.24e-3,'dwell',1e-5, 'pythonCmd', '.../anaconda3/bin/python3');
+% rf180 = mr.makeAdiabaticPulse('hypsec',sys,'Duration',10.24e-3,'dwell',1e-5, 'pythonCmd', '/Users/agah/opt/anaconda3/envs/py38/bin/python');
 % =======================================
 
-rf180 = mr.makeAdiabaticPulse('hypsec',sys,'Duration',10.24e-3,'dwell',1e-5);
+rf180 = mr.makeAdiabaticPulse('hypsec',sys,'Duration',10.24e-3,'dwell',1e-5, 'pythonCmd', '/Users/agah/opt/anaconda3/envs/py310/bin/python');
+%rf180 = mr.makeAdiabaticPulse('hypsec',sys,'Duration',10.24e-3,'dwell',1e-5);
 
 % Define other gradients and ADC events
 deltak=1./fov;
@@ -165,7 +166,7 @@ else
 end
 
 %% plot, etc
-seq.plot('TimeRange',[200 210], 'label', 'LIN,SET');
+6446
 
 %%
 seq.setDefinition('FOV', fov);
