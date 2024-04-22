@@ -7,12 +7,10 @@ if ~exist(derivsDir, 'dir')
     mkdir(derivsDir);
  end
 
-% Load MP2RAGE qmrlab protocol for fitting
-mp2rage_prot = load('protocol.mat');
-mp2rage_prot = mp2rage_prot.Protocol;
 
 subs = struct();
-subs.phantom.sessions = ["neutPRI","neutSKY","natSKY"];
+subs.phantom.sessions = ["neutPRI","neutSKY","natSKY","neut750"];
+%subs.phantom.sessions = ["neut750"];
 subs.invivo.sessions = ["neutSKY","natSKY"];
 
 % Just for the sake of it.
@@ -24,7 +22,6 @@ for i=1:length(flds)
     for j = 1:length(cur_sessions)
         cursub = "sub-" + flds{i};
         curses  = "ses-" + cur_sessions(j);
-        common = cursub + "_" + curses + "_inv-";
         indir = fullfile(bidsDir,cursub,curses,'anat');
         outdir = fullfile(derivsDir,cursub,curses,'anat');
 
@@ -32,33 +29,63 @@ for i=1:length(flds)
             mkdir(outdir);
          end
 
-        data = struct();
-        % Please don't hate me for this.
-        data.INV1mag = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz"))).img);
-        data.INV1phase = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-phase_MP2RAGE.nii.gz"))).img);
-        data.INV2mag = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-mag_MP2RAGE.nii.gz"))).img);
-        data.INV2phase = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-phase_MP2RAGE.nii.gz"))).img);
+        if strfind(cur_sessions(j),'neut')
+            common = cursub + "_" + curses + "_inv-";
+            % Load MP2RAGE qmrlab protocol for fitting
+            mp2rage_neut_prot = load('neut_prot.mat');
+            mp2rage_neut_prot = mp2rage_neut_prot.Protocol;
 
-        % Set preset prots 
-        Model = mp2rage;
-        Model.Prot = mp2rage_prot;
+            data = struct();
+            % Please don't hate me for this.
+            data.INV1mag = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz"))).img);
+            data.INV1phase = double(load_nii(char(fullfile(indir,common + num2str(1) + "_part-phase_MP2RAGE.nii.gz"))).img);
+            data.INV2mag = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-mag_MP2RAGE.nii.gz"))).img);
+            data.INV2phase = double(load_nii(char(fullfile(indir,common + num2str(2) + "_part-phase_MP2RAGE.nii.gz"))).img);
 
-        FitResults = FitData(data,Model,0);
+            % Set preset prots 
+            Model = mp2rage;
+            Model.Prot = mp2rage_neut_prot;
 
-        FitResultsSave_nii(FitResults, char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz")),char(outdir));
+            FitResults = FitData(data,Model,0);
 
-        addField = struct();
-        addField.EstimationAlgorithm =  'qMRLab MP2RAGE';
-        addField.Protocol =  mp2rage_prot;
-        addField.BasedOn = [{char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz"))};
-                            {char(fullfile(indir,common + num2str(1) + "_part-phase_MP2RAGE.nii.gz"))};
-                            {char(fullfile(indir,common + num2str(2) + "_part-mag_MP2RAGE.nii.gz"))};
-                            {char(fullfile(indir,common + num2str(2) + "_part-phase_MP2RAGE.nii.gz"))}
-                            ];
-        provenance = Model.getProvenance('extra',addField);
+            FitResultsSave_nii(FitResults, char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz")),char(outdir));
 
-        save_name = char(fullfile(outdir, "qmrlab_provenance.json"));
-        savejson('',provenance,save_name);
+            addField = struct();
+            addField.EstimationAlgorithm =  'qMRLab MP2RAGE';
+            addField.Protocol =  mp2rage_neut_prot;
+            addField.BasedOn = [{char(fullfile(indir,common + num2str(1) + "_part-mag_MP2RAGE.nii.gz"))};
+                                {char(fullfile(indir,common + num2str(1) + "_part-phase_MP2RAGE.nii.gz"))};
+                                {char(fullfile(indir,common + num2str(2) + "_part-mag_MP2RAGE.nii.gz"))};
+                                {char(fullfile(indir,common + num2str(2) + "_part-phase_MP2RAGE.nii.gz"))}
+                                ];
+            provenance = Model.getProvenance('extra',addField);
+
+            save_name = char(fullfile(outdir, "qmrlab_provenance.json"));
+            savejson('',provenance,save_name);
+        else
+            common = cursub + "_" + curses;
+            % Use UNI images from the vendor
+            mp2rage_nat_prot = load('nat_prot.mat');
+            mp2rage_nat_prot = mp2rage_nat_prot.Protocol;
+
+            data = struct();
+            %reslice_nii(char(fullfile(indir,common + "_UNIT1.nii.gz")),char(fullfile(outdir, "resliced.nii.gz")));
+            data.MP2RAGE = double(load_untouch_nii(char(fullfile(indir,common + "_UNIT1.nii.gz"))).img);
+
+            FitResults = FitData(data,Model,0);
+            FitResultsSave_nii(FitResults, char(fullfile(indir,common + "_UNIT1.nii.gz")),char(outdir));
+
+            addField = struct();
+            addField.EstimationAlgorithm =  'qMRLab MP2RAGE';
+            addField.Protocol =  mp2rage_nat_prot;
+            addField.BasedOn = [{char(fullfile(outdir, "qmrlab_provenance.json"))}];
+            provenance = Model.getProvenance('extra',addField);
+
+            save_name = char(fullfile(outdir, "qmrlab_provenance.json"));
+            savejson('',provenance,save_name);
+        
+
+        end
     end
 end
 
