@@ -9,9 +9,9 @@ if ~exist(derivsDir, 'dir')
 
 
 subs = struct();
-subs.phantom.sessions = ["neutPRI","neutSKY","natSKY","neut750"];
-%subs.phantom.sessions = ["neut750"];
-subs.invivo.sessions = ["neutSKY","natSKY"];
+%subs.phantom.sessions = ["neutPRI","neutSKY","natSKY","neut750"];
+subs.phantom.sessions = ["neutCAN"];
+%subs.invivo.sessions = ["neutSKY","natSKY"];
 
 % Just for the sake of it.
 flds = fields(subs);

@@ -10,3 +10,6 @@
 [submodule "mapVBVD"]
 	path = mapVBVD
 	url = https://github.com/pehses/mapVBVD
+[submodule "toppe"]
+	path = toppe
+	url = https://github.com/toppeMRI/toppe.git

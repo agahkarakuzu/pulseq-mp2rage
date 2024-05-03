@@ -50,17 +50,30 @@ elseif ext == ".mat"
     Npe = 120;
     Nset = 2;
     Npar = 96;
-    Ncha = 48;
+    Ncha = 32;
     data = load(ks_path).ks;
+
+    oversampled = false;
     % Oversample along the readout hence 256
-    data = reshape(data,[256,Ncha,Npe,Npar,Nset]);
+    if oversampled
     % Crop along readout
+    % !!!!!!! 4X 
+    data = reshape(data,[512,Ncha,Npe,Npar,Nset]);
+    data = data(1:4:512,:,:,:,:);
+    % !!!!!!! 2X 
+    data = reshape(data,[256,Ncha,Npe,Npar,Nset]);
     data = data(1:2:256,:,:,:,:);
+    else
+    Ncha = 32;
+    % data = reshape(data,[256,Ncha,Npe,Npar,Nset]);
+    % data = data(1:2:256,:,:,:,:);
+    end
     % Permute such that Nsamp, Npe, Npar, Ncha, Nset
     data = permute(data,[1,3,4,2,5]);
-    recon_params.num_svd = 24; % There are 48 channels.
-    recon_params.num_acs = 30;
-    recon_params.c = 0.2;
+    recon_params.num_svd = 16;
+    %recon_params.num_svd = 24; % There are 48 channels.
+    recon_params.num_acs = 16;
+    recon_params.c = 0.4;
 end
 
 % Parallelize TI and T2 recon.
@@ -192,6 +205,10 @@ function result = splitbefore(name)
 end
 
 
+% CANON
+
+% rawData = rawData(1:2:end,:) + 1i*rawData(2:2:end,:);
+
 
 % GEPARSER
 
@@ -203,10 +220,10 @@ end
 % for i = 1:numBlocks
 %     startIndex = (i - 1) * blockSize + 1;
 %     endIndex = i * blockSize;
-%     blocks{i} = d(:,:,startIndex:endIndex);
+%     blocks{i} = rr(:,:,startIndex:endIndex);
 % end
 
-% gedat = zeros(256,48,120,96,2);
+% gedat = zeros(128,64,120,96,2);
 
 % idx = 1;
 % for ii=1:2:240
